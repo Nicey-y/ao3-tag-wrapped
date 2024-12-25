@@ -46,7 +46,7 @@ def openLink(link, user, pwd):
 
 
 ### DATA COLLECTION - scrapping your readings -----------------------
-wrapped_year = '2024'  # Please type the year in between the apostrophes '' (DO NOT DELETE THE APOSTROPHES! DO NOT PUT SPACES!)
+wrapped_year = int(input("Enter year: "))
 
 tag_link = input("Link to the tag's page: ")
 
