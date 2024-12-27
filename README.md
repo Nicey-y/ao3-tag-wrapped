@@ -1,10 +1,10 @@
 # ao3-tag-wrapped
 AO3 Tag Wrapped read through pages of a specific AO3 tag and constructs a summary what the community that uses said tag has achieved. This works for all tags (even uncategorized tags).
 
-Credit: AO3 Tag Wrapped is built largely based on the original AO3 Wrapped by soupbanana & Zịt & Luna which can be found <a href="https://colab.research.google.com/drive/1N7nsj_aVszbJqfSFWvh3LquND8GluCNb">here</a>
+Credit: AO3 Tag Wrapped is built largely based on the original AO3 Wrapped by soupbanana & Zịt & Luna which can be found <a href="https://colab.research.google.com/drive/1GhhENZ8RjRWKgwIchqRS-KllPF8AEci_?usp=sharing">here</a>
 
 <h2>Online Version (No Installing Required):</h2>
-Go to <a href="https://colab.research.google.com/drive/1GhhENZ8RjRWKgwIchqRS-KllPF8AEci_?usp=sharing#scrollTo=K3B-KfQB48pm">this Google Colab project</a>.
+Go to <a href="https://colab.research.google.com/drive/1CnJcZD-yL4a9jIv1WKMDZFSu0TzDEs1c?usp=sharing">this Google Colab project</a>.
 
 <h2>Offline Version (for Windows only. I am not familiar with MacOs, but these steps are easy enough that you can search up how to do them online):</h2>
 
