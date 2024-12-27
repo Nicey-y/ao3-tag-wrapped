@@ -14,6 +14,7 @@ import io
 import time
 import string
 import csv
+from collections import defaultdict
 
 def openLink(link, user, pwd):
   isOpen = False
@@ -48,7 +49,24 @@ def openLink(link, user, pwd):
 ### DATA COLLECTION - scrapping your readings -----------------------
 wrapped_year = int(input("Enter year: "))
 
+filterable_answer = input("Can your tag be filtered on? (y/n) ")
+
+# default to False
+isFilterable = False
+
+if (filterable_answer == 'y'):
+  isFilterable = True
+elif (filterable_answer == 'n'):
+  isFilterable = False
+else:
+  print("Invalid answer.")
+  exit()
+
 tag_link = input("Link to the tag's page: ")
+
+if isFilterable:
+  filter_suffix = "?commit=Sort+and+Filter&page=1&work_search%5Bcomplete%5D=&work_search%5Bcrossover%5D=&work_search%5Bdate_from%5D=&work_search%5Bdate_to%5D=&work_search%5Bexcluded_tag_names%5D=&work_search%5Blanguage_id%5D=&work_search%5Bother_tag_names%5D=&work_search%5Bquery%5D=&work_search%5Bsort_column%5D=created_at&work_search%5Bwords_from%5D=&work_search%5Bwords_to%5D="
+  tag_link = tag_link + filter_suffix
 
 myfile = openLink(tag_link, username, pwd)
 
@@ -65,6 +83,8 @@ titles = []
 authors = []
 fandoms = []
 ratings = []
+if isFilterable:
+  monthly_count = defaultdict(int)
 
 # extras: all the tag block
 warnings = []
@@ -91,9 +111,9 @@ while not isDone or p <= last_page:
     s = stats[fic]
     e = extras[fic]
 
-    # get year of visit
+    # get month and year
     year = v.find('p', attrs={'class':'datetime'}).get_text()[7:]
-    # 19 Dec 2024 -> take 2024 only
+    month = v.find('p', attrs={'class':'datetime'}).get_text()[3:6]
 
     # check for mystery work
     mystery = v.find('div', attrs={'class':'mystery header picture module'})
@@ -102,7 +122,7 @@ while not isDone or p <= last_page:
     status = v.find('span', attrs={'class':'status'})
 
     # filtering
-    if int(year) == int(wrapped_year)-1: # if last visit older than 2023, stop loop
+    if int(year) == int(wrapped_year)-1: # if last update older than 2023, stop loop
       isDone = True
     elif int(year) > int(wrapped_year):
       pass
@@ -113,6 +133,8 @@ while not isDone or p <= last_page:
       # filter out unrevealed work that you can see, delete the line above and below this comment if you dont want to do so
       pass
     else:
+      if isFilterable:
+        monthly_count[month] += 1
       # fics
       heading = v.find('h4', attrs={'class':'heading'})
       title = heading.find(href=re.compile("works")).text
@@ -158,10 +180,15 @@ while not isDone or p <= last_page:
   p = p+1
   if isDone or p > last_page:
     break
+  
+  # update page link
+  if isFilterable:
+    index = tag_link.find("&page=")
+    new_url = tag_link[:index+6] + f"{p}" + tag_link[index+7:]
+  else:
+    new_url = tag_link + f"?page={p}"
+  
   # open next page
-  # update page link, can be different if you filter based on the tag
-  new_url = tag_link + f"?page={p}"
-
   myfile = openLink(new_url, username, pwd)
   soup = BeautifulSoup(myfile, 'html.parser')
 
@@ -169,6 +196,37 @@ while not isDone or p <= last_page:
 
 ficsTotal = len(titles)
 wordsTotal = np.sum(words)
+
+# get 3 longest works
+first = second = third = float('-inf')
+index_1 = index_2 = index_3 = 0
+    
+for i in range(len(words)):
+  # If current element is greater than first
+  if words[i] > first:
+    third = second
+    index_3 = index_2
+    
+    second = first
+    index_2 = index_1
+
+    first = words[i]
+    index_1 = i
+        
+  # If words[i] is in between first and second then update second
+  elif words[i] > second and words[i] != first:
+    third = second
+    index_3 = index_2
+
+    second = words[i]
+    index_2 = i
+        
+  elif words[i] > third and words[i] != second and words[i] != first:
+    third = words[i]
+    index_3 = i
+
+# list of tuple of 3 in (word count, title, author) format in descending order
+top3LongestWork = [(words[index_1], titles[index_1], authors[index_1][0]), (words[index_2], titles[index_2], authors[index_2][0]), (words[index_3], titles[index_3], authors[index_3][0])]
 
 def findTop(a, nb):
   a = list(np.concatenate(a).flat)
@@ -235,12 +293,26 @@ def writeMultipleLists(f, *args):
       writeItemN(f, args[j], i)
     f.write("\n")
 
-# write to csv file
-f = open("tag_stats.csv", "a")
-# extra info
-f.write("Total work produced,"+f"{ficsTotal},"+"Total words written,"+f"{wordsTotal}"+"\n")
+#### DATA FILE -------------------------------
+f = open("tag_data.csv", "a")
 # headers
-f.write("Top Author,Work Count,Top Characters,Work Count,Top Relationships,Work Count,Top Tags,Work Count,Top Warnings,Work Count\n")
+f.write("Top Author,Work Count,Top Characters,Work Count,Top Fandoms,Work Count,Top Tags,Work Count,Top Warnings,Work Count,Top Ratings,Work Count,Top Relationships,Work Count\n")
 # data
-writeMultipleLists(f, topAuthors, topCharacters, topShips, topTags, topWarnings)
+writeMultipleLists(f, topAuthors, topCharacters, topFandoms, topTags, topWarnings, topRating, topShips)
+f.close()
+
+#### ANALYSIS FILE -------------------------------
+f = open("tag_analysis.csv", "a")
+# trivia
+f.write("Total work produced,"+f"{ficsTotal}\n"+"Total words written,"+f"{wordsTotal}"+"\n")
+
+# top 3 longest works
+f.write("Top 3 Longest Work\nWork Count,Title,Author\n")
+for item in top3LongestWork:
+  f.write(f"{item[0]},{item[1]},{item[2]}\n")
+
+if isFilterable:
+  # work count by month
+  f.write("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec\n")
+  f.write(f"{monthly_count['Jan']},{monthly_count['Feb']},{monthly_count['Mar']},{monthly_count['Apr']},{monthly_count['May']},{monthly_count['Jun']},{monthly_count['Jul']},{monthly_count['Aug']},{monthly_count['Sep']},{monthly_count['Oct']},{monthly_count['Nov']},{monthly_count['Dec']},")
 f.close()
