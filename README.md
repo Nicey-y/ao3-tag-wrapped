@@ -35,4 +35,4 @@ It is possible to view works that belong to a tag without having to log in. Howe
 The content will be written to <i>two .csv files</i> in the same folder. <ins>tag_data.csv</ins> contains raw data, while <ins>tag_analysis.csv<ins> contains extra information.
 
 <h2>! ! ! Edge case:</h2>
-This code collect the date and time by reading what is shown on the tag page and without accessing the works themselves. However, even when filtered by "Date Posted", AO3 still shows the last date a certain work has been updated instead. This means that, for example, if a work was posted in 2023 and was still getting updated until 2024, it is still counted.
+This code collects the date and time by reading what is shown on the tag page and without accessing the works themselves. However, even when filtered by "Date Posted", AO3 still shows the last date a certain work has been updated instead. This means that, for example, if a work was posted in 2023 and was still getting updated until 2024, it is still counted.
