@@ -26,13 +26,13 @@ It is possible to view works that belong to a tag without having to log in. Howe
 
 <h2>How to get the required link:</h2>
 
-1. Go to the tag's page on ao3.
+1. Go to the tag's page on ao3 (this should be where all the works that use this tag are listed).
 2. Copy the link to that page and paste it. Make sure that:
    - you don't put any filter onto the tag
    - your link <ins>contains the prefix "https://"</ins>, double click the link before copying can do the trick
    - your link <ins>DOESN'T have the suffix "?page=1".</ins>
 
-The content will be written to <i>two .csv files</i> in the same folder. <ins>tag_data.csv</ins> contains raw data, while <ins>tag_analysis.csv<ins> contains extra information.
+The content will be written to <i>two .csv files</i> in the same folder. <ins>tag_data.csv</ins> contains raw data, while <ins>tag_analysis.csv</ins> contains extra information.
 
 <h2>! ! ! Edge case:</h2>
 This code collects the date and time by reading what is shown on the tag page and without accessing the works themselves. However, even when filtered by "Date Posted", AO3 still shows the last date a certain work has been updated instead. This means that, for example, if a work was posted in 2023 and was still getting updated until 2024, it is still counted.

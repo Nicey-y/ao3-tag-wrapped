@@ -74,8 +74,11 @@ soup = BeautifulSoup(myfile, 'html.parser')
 
 # find total number of pages
 nav = soup.find("ol", attrs={"role":"navigation"})
-pages = nav.findAll("a")
-last_page = int(pages[-2].text)
+if nav is None:
+  last_page = 1
+else:
+  pages = nav.findAll("a")
+  last_page = int(pages[-2].text)
 
 ### A work is broken down into 3 main components
 # fics: name, author, fandom, 4 squares in front, completion status, datetime
